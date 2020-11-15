@@ -1,0 +1,25 @@
+\documentclass[12pt,a4paper,oneside]{article}
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+\usepackage[style=numeric]{biblatex}
+\addbibresource{refs.bib}
+\pagenumbering{gobble}
+\newcommand{\code}{\texttt}
+
+\title{Proposal}
+\author{Lukas Schießer}
+\date{}
+
+\begin{document}
+\maketitle
+The COVID-19 pandemic is a fast and dynamically developing pandemic which overwhelmed health care systems across the world. Especially during the first months of the pandemic, testing kits were limited due to a global shortage in testing reagents and equipment. Even during later stages of the pandemic and subsequent waves of the disease, most health care systems will experience shortages of testing supplies again.\cite{jaecklin_2020,asm.org_2020}
+As testing is a vital instrument to control the spread of a disease during a pandemic, it is imperative to focus testing efforts to individuals who likely contracted the disease and isolate them to prevent further infections.
+Artificial Intelligence can help during times when testing capacities are limited due to equipment or qualified staff shortages.
+The goal of my bachelor's thesis is to reproduce \cite{RN127}. The authors of the paper provide the data with which they trained their models. It was collected randomly during the end of February and mid of March from patients admitted to the \textit{IRCSS Ospedale San Raffaele}. The dataset consists of 279 individuals. For each individual, the dataset provides their age, gender, values from a routine blood screening and the result of a PCR test for COVID-19. Although the dataset is slightly imbalanced towards positive cases with 177 (63\%) positive and 102 (37\%) negative cases, it can be neglected during the analysis of the data. To impute the missing values in the data, the researchers use a method called MICE. MICE or multivariate imputation by chained equations is a method which imputes missing data by estimating a set of possible values from distributions of observed data. Each variable with missing data $x_n$ is regressed on all other variables $x_1, ..., x_k$ which are restricted to the occurrences with observed data in $x_n$. \cite{RN141,RN142} Thereby, this procedure can reflect the statistical uncertainty during the imputation process. Moreover, by modeling every variable individually MICE can handle variables of different variables. Usually, the dataset is imputed several times to produce slightly different imputed dataset which also reflect the uncertainty in the imputations. The authors use 5-fold nested cross validation to tune the hyperparameters and train the classifiers. The data is also imputed during the nested cross validation. They implement 7 different classifiers, including logistic regression and random forests which I plan to implement. All classifiers are evaluated by means of accuracy, balanced accuracy, positive predictive value, sensitivity and area under the ROC-curve.
+In Python the MICE algorithm is implemented by the class \code{IterativeImputer} in scikit-learn \cite{scikit-learn}. Unfortunately, this implementation is still experimental and poses some shortcomings, most prominently this implementation is not yet able to handle non-normal distributed variables. Additionally, the python implementation does not provide any way to investigate the parameters of the individual models as other implementations of this algorithm in other languages and frameworks do. Therefore, I decided to use the R implementation of the algorithm called \code{mice()} \cite{RN135}. It is able to handle non-normal variables and provides functions to examine the parameters of the individual distributions which can be helpful to determine the suitability of the model for each variable \cite{RN142}. Since the majority of the data analysis and model fitting is executed in python there are 2 possibilities to impute the missing data using MICE in R. On one hand, the data could be preprocessed in R and then exported to be subsequently used in the python implementation of the 5-fold nested cross validation. 
+On the other hand, I could use the R API to incorporate the R code in python and impute the missing values during the 5-fold nested cross validation.
+The acquired metrics should then be compared to those in the original paper. Further, it could be a good idea to train a decision tree to gain some insights in the importance of the features. Finally, in the discussion, I would like to discuss the advantages and shortcomings of the MICE algorithm, the analysis and training process in general. Additionally, I could discuss further ideas e.g. the potential benefits and pitfalls in bootstrapping data using the original dataset to improve the performance of the classifiers and discuss scenarios for a real world validation of the results.
+\printbibliography
+\end{document}
